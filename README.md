@@ -1,6 +1,8 @@
 # xdotool
 C# wrapper over `xdotool` - command-line X11 automation tool
 
+---
+
 install `xdootool`
 
 ```sh
@@ -25,11 +27,15 @@ using XDoTool.WindowCommands;
 
 // Execute single command
 // 1. Start xdootol process
-// 2. Get result
+// 2. Execute command 1
+// 3. Get result
+// 4. End xdotool process
 var windowId = await XDoTool.XDoTool.ExecuteCommandAsync(new GetActiveWindowCommand());
 
 // Execute single command
 // 1. Start xdootol process
+// 2. Execute command 1
+// 3. End xdotool process
 ICommand windowMoveCommand = new WindowMoveCommand(windowId, new Percent<int>(5), new Percent<int>(5));
 
 await XDoTool.XDoTool.ExecuteCommandAsync(windowMoveCommand);
