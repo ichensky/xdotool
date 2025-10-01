@@ -1,14 +1,19 @@
 # xdotool
 C# wrapper over `xdotool` - command-line X11 automation tool
 
+### 1. Install nuget package: 
+
+https://www.nuget.org/packages/XDoTool
+
 ---
 
-install `xdootool`
+### 2. install `xdootool`
 
 ```sh
 $ apt install xdotool 
 ```
 
+### links 
 `xdotool` repository: 
 https://github.com/jordansissel/xdotool
 
@@ -18,7 +23,7 @@ https://man.archlinux.org/man/xdotool.1.en
 
 https://manpages.debian.org/testing/xdotool/xdotool.1.en.html
 
-# Example of usage
+### Example of usage
 
 ```csharp
 using System.Threading.Channels;
@@ -46,6 +51,7 @@ await XDoTool.XDoTool.ExecuteCommandAsync(windowMoveCommand);
 // 3. End xdotool process
 var channel = Channel.CreateBounded<ICommand>(100);
 
+// Push commands to `xdotool`
 Task.Run(async () =>
 {
     ICommand windowMoveCommand = new WindowMoveCommand(windowId, new Percent<int>(5), new Percent<int>(5));
@@ -60,5 +66,6 @@ Task.Run(async () =>
     channel.Writer.Complete();
 });
 
+// Start `xdotool` process and wait for commands 1,2,... 
 await XDoTool.XDoTool.ExecuteCommandsAsync(channel.Reader);
 ```
