@@ -26,13 +26,13 @@ using XDoTool.WindowCommands;
 // Execute single command
 // 1. Start xdootol process
 // 2. Get result
-var windowId = await XDoTool.XDoTool.ExecuteCommand(new GetActiveWindowCommand());
+var windowId = await XDoTool.XDoTool.ExecuteCommandAsync(new GetActiveWindowCommand());
 
 // Execute single command
 // 1. Start xdootol process
 ICommand windowMoveCommand = new WindowMoveCommand(windowId, new Percent<int>(5), new Percent<int>(5));
 
-await XDoTool.XDoTool.ExecuteCommand(windowMoveCommand);
+await XDoTool.XDoTool.ExecuteCommandAsync(windowMoveCommand);
 
 // Execute several command
 // 1. Start xdootol process
@@ -54,5 +54,5 @@ Task.Run(async () =>
     channel.Writer.Complete();
 });
 
-await XDoTool.XDoTool.ExecuteCommands(channel.Reader);
+await XDoTool.XDoTool.ExecuteCommandsAsync(channel.Reader);
 ```

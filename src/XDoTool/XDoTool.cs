@@ -7,7 +7,7 @@ public class XDoTool
 {
     private const string XDoToolExecutable = "xdotool";
 
-    public static async Task ExecuteCommands(ChannelReader<ICommand> commands)
+    public static async Task ExecuteCommandsAsync(ChannelReader<ICommand> commands, CancellationToken cancellationToken = default)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -27,22 +27,25 @@ public class XDoTool
         using var input = process.StandardInput;
         input.AutoFlush = false;
 
-        while (await commands.WaitToReadAsync())
+        while (await commands.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
         {
             while (commands.TryRead(out var command))
             {
-                await input.WriteLineAsync(command.GetCommandString());
-                await input.FlushAsync();
+                cancellationToken.ThrowIfCancellationRequested();
+                var commandString = command.GetCommandString().AsMemory();
+
+                await input.WriteLineAsync(commandString, cancellationToken).ConfigureAwait(false);
+                await input.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
         }
 
         input.Close();
 
-        await process.WaitForExitAsync(); 
+        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false); 
     }
 
 
-    public static async Task ExecuteCommand(ICommand command)
+    public static async Task ExecuteCommandAsync(ICommand command, CancellationToken cancellationToken = default)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -59,10 +62,10 @@ public class XDoTool
 
         process.Start();
 
-        process.WaitForExit();
+        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);     
     }
 
-    public static async Task<TCommandResult> ExecuteCommand<TCommandResult>(ICommandWithResult<TCommandResult> command)
+    public static async Task<TCommandResult> ExecuteCommandAsync<TCommandResult>(ICommandWithResult<TCommandResult> command, CancellationToken cancellationToken = default)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -79,11 +82,11 @@ public class XDoTool
 
         process.Start();
 
-        string output = await process.StandardOutput.ReadToEndAsync();
+        string output = await process.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
 
         command.SetCommandOutput(output);
 
-        process.WaitForExit();
+        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);     
 
         return command.GetCommandOutputValue();
     }
